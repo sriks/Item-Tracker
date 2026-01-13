@@ -1,61 +1,59 @@
-//
-//  ContentView.swift
-//  ItemTracker
-//
-//  Created by Srikanth on 17/10/2025.
-//
-
 import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Environment(\.dependencies) private var dependencies
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        TabView {
+            if let deps = dependencies {
+                HomeView(queryViewModel: QueryViewModel(brain: deps.itemFinder))
+                    .tabItem {
+                        Label("Home", systemImage: "house.fill")
                     }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+
+                ItemsView()
+                    .tabItem {
+                        Label("Items", systemImage: "list.bullet")
                     }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+                SettingsView()
+                    .tabItem {
+                        Label("Settings", systemImage: "gearshape.fill")
+                    }
             }
         }
     }
 }
 
+// MARK: - Items View
+struct ItemsView: View {
+    var body: some View {
+        NavigationStack {
+            VStack {
+                Text("All saved items will appear here")
+                    .foregroundStyle(.secondary)
+            }
+            .navigationTitle("Items")
+        }
+    }
+}
+
+// MARK: - Settings View
+struct SettingsView: View {
+    var body: some View {
+        NavigationStack {
+            VStack {
+                Text("App settings")
+                    .foregroundStyle(.secondary)
+            }
+            .navigationTitle("Settings")
+        }
+    }
+}
+
 #Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+    let dependencies = DependencyContainer.preview()
+    return ContentView()
+        .environment(\.dependencies, dependencies)
 }

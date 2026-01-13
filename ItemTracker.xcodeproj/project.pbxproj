@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AD153F832F163B6F004BA896 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = AD153F822F163B6F004BA896 /* AsyncAlgorithms */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		AD0E80D32EA1C99D00D75EA0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		AD0E80C32EA1C99C00D75EA0 /* ItemTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ItemTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD0E80D22EA1C99D00D75EA0 /* ItemTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ItemTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD0E80DC2EA1C99D00D75EA0 /* ItemTrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ItemTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD153F762F1618A2004BA896 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD153F832F163B6F004BA896 /* AsyncAlgorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -79,6 +85,7 @@
 				AD0E80D52EA1C99D00D75EA0 /* ItemTrackerTests */,
 				AD0E80DF2EA1C99D00D75EA0 /* ItemTrackerUITests */,
 				AD0E80C42EA1C99C00D75EA0 /* Products */,
+				AD153F762F1618A2004BA896 /* CLAUDE.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -112,6 +119,7 @@
 			);
 			name = ItemTracker;
 			packageProductDependencies = (
+				AD153F822F163B6F004BA896 /* AsyncAlgorithms */,
 			);
 			productName = ItemTracker;
 			productReference = AD0E80C32EA1C99C00D75EA0 /* ItemTracker.app */;
@@ -195,6 +203,9 @@
 			);
 			mainGroup = AD0E80BA2EA1C99C00D75EA0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AD153F812F163B6F004BA896 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AD0E80C42EA1C99C00D75EA0 /* Products */;
 			projectDirPath = "";
@@ -570,6 +581,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AD153F812F163B6F004BA896 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-async-algorithms.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AD153F822F163B6F004BA896 /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AD153F812F163B6F004BA896 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = AD0E80BB2EA1C99C00D75EA0 /* Project object */;
 }

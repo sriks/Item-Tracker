@@ -10,23 +10,20 @@ import SwiftData
 
 @main
 struct ItemTrackerApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+    private let dependencies: DependencyContainer
 
+    init() {
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            self.dependencies = try DependencyContainer.production()
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("Failed to initialize dependencies: \(error)")
         }
-    }()
+    }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(\.dependencies, dependencies)
         }
-        .modelContainer(sharedModelContainer)
     }
 }
