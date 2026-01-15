@@ -13,37 +13,52 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
-                Text("Query your items here")
-                    .foregroundStyle(.secondary)
-                
-                ZStack {
-                    // Background gradient with faded edges
-                    AnimatedGlowEffect()
-                    
-                    // Text field
-                    TextField("Search", text: $queryViewModel.query)
-                        .textFieldStyle(.plain)
-                        .keyboardType(.default)
-                        .submitLabel(queryViewModel.query.isEmpty ? .done : .search)
-                        .onSubmit {
-                            queryViewModel.runQuery()
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(.regularMaterial)
-                                .stroke(Color.primary.opacity(0.1), lineWidth: 1)
-                        )
-                }
-                .padding()
-                
-                if let answer = queryViewModel.answer {
-                    Text(answer)
-                }
+            ScrollView {
+//                VStack() {
+//                    Text("Answer")
+//                    Text("Answer")
+//                    VStack(alignment: .leading) {
+//                        // MARK: Answer view
+//                        if let answer = queryViewModel.answer {
+//                            AnswerView(answer: answer).background(.green)
+//                        }
+//                    }
+//                    .fixedSize(horizontal: false, vertical: true)
+//                    .containerRelativeFrame(.vertical, alignment: .bottom)
+//                }
             }
-            .navigationTitle("Home")
+            .background(.blue)
+            .safeAreaInset(edge: .bottom) {
+                // MARK: Query view
+                VStack {
+                    
+                    if let answer = queryViewModel.answer {
+                        AnswerView(answer: answer)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    VStack {
+                        // Text field
+                        TextField("Where are chargers?", text: $queryViewModel.query)
+                            .textFieldStyle(.plain)
+                            .keyboardType(.default)
+                            .submitLabel(queryViewModel.query.isEmpty ? .done : .search)
+                            .onSubmit {
+                                queryViewModel.runQuery()
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.regularMaterial)
+                                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                            )
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                }
+                .frame(alignment: .bottom)
+            }
         }
     }
 }

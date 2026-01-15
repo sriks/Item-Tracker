@@ -180,6 +180,7 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
+				ORGANIZATIONNAME = "Dreamcode Pty Ltd";
 				TargetAttributes = {
 					AD0E80C22EA1C99C00D75EA0 = {
 						CreatedOnToolsVersion = 26.0.1;

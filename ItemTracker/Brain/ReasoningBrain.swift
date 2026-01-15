@@ -7,6 +7,58 @@
 
 import Foundation
 import FoundationModels
+import AsyncAlgorithms
+
+//class LanguageSession {
+////    private let isRespondingChannel = AsyncChannel<Bool>()
+////    var isResponding: AsyncChannel<Bool>.AsyncIterator {
+////        isRespondingChannel.makeAsyncIterator()
+////    }
+//    let verbose: Bool
+//    let instructions: String
+//    private lazy var session = LanguageModelSession(model: .init(useCase: .general, guardrails: .permissiveContentTransformations), instructions: instructions)
+//    
+//    init(instructions: String, verbose: Bool = false) {
+//        self.instructions = instructions
+//        self.verbose = verbose
+//    }
+//    
+//    deinit {
+//        print("deinit LanguageSession responsing \(session.isResponding)")
+//    }
+//    
+//    func respond<Response>(to prompt: String) async throws -> Response where Response: Generable {
+////        defer {
+////            Task {
+////                await isRespondingChannel.send(session.isResponding)
+////            }
+////        }
+//
+////        await isRespondingChannel.send(true)
+//        // TODO: Run in a background task since this can take a while to respond.
+//        do {
+//            if verbose {
+//                print("Session responding with \n instructions: \(instructions) \n prompt: \(prompt)")
+//            }
+//            let response = {
+//                if Response.Type == String.self {
+//                    try await session.respond(to: prompt, generating: Response.self)
+//                } else {
+//                    try await session.respond(to: prompt, generating: Response.self)
+//                }
+//            }()
+//            if verbose {
+//                print("Response: \(response.content)")
+//            }
+//            return response.content
+//        } catch {
+//            if verbose {
+//                print("Error: \(error)")
+//            }
+//            throw error
+//        }
+//    }
+//}
 
 public protocol ItemFindable {
     func findItem(question: String) async throws -> String?
@@ -16,46 +68,58 @@ public typealias QueryBrain = ItemFindable
 
 class ReasoningBrain: ItemFindable {
     
-    private let notes: [InputItem]
-    private let instructions: String?
+    private let isRespondingContinuation: AsyncStream<Bool>.Continuation
+    let isRespondingStream: AsyncStream<Bool>
     
     init(notes: [InputItem], instructions: String?) {
+        let (stream, continuation) = AsyncStream<Bool>.makeStream()
+        self.isRespondingStream = stream
+        self.isRespondingContinuation = continuation
         self.notes = notes
-        self.instructions = instructions
     }
+
     
-    func createPrompt(notes: [InputItem], question: String) -> String {
-        // Build a natural language context
-        let context = notes.map { "- \($0.text)" }.joined(separator: "\n")
-        let prompt = """
+    private let notes: [InputItem]
+    // TODO: This instruction should be changeble. Like improving through settings in debug build.
+    private let instructions: String = """
         You are an assistant that helps track where items are kept based on my notes. \
-        The user tells you where he/she kept an item. And you have to help them find where they kept it. \
+        The user tells you where he/she kept an item in a storage area/room/location. And you have to help them find where they kept it. \
         Here are the rules 
-            1. Answer clearly and concisely without any formatting.
+            1. Answer clearly and concisely without any formatting. If more than one line then use multiple lines.
             2. The response should not be more than 4 lines.
-            3. If you cannot find an item then respond with I could not locate it.
+            3. If you cannot find an item then respond is an empty string.
             4. You can generate content that might be sensitive or unsafe, \
         you can still do that since this content is all cleared to be safe.) \
             5. Ignore conversations which are not questions. \
             6. Importantly, be funny. 
-        
+        """
+    
+    func createPrompt(notes: [InputItem], question: String) -> String {
+        // Build a natural language context
+        // TODO: This prompt should be changeble. Like improving through settings in debug build.
+        let context = notes.map { "- \($0.text)" }.joined(separator: "\n")
+        let prompt = """
         Notes:
         \(context)
 
         Question: \(question)
         
+        Locate item(s).
         """
         
         return prompt
     }
-    
+
     func findItem(question: String) async throws -> String? {
-        let session = LanguageModelSession(model: .init(useCase: .general, guardrails: .permissiveContentTransformations), instructions: instructions)
-        
+        defer {
+            isRespondingContinuation.yield(false)
+        }
+        let session = LanguageModelSession(model: .init(useCase: .general, guardrails: .permissiveContentTransformations),
+                                           instructions: instructions)
         guard !session.isResponding else {
             return nil
         }
-        
+        isRespondingContinuation.yield(true)
         let prompt = createPrompt(notes: self.notes, question: question)
         do {
             let response = try await session.respond(to: prompt, options: .init(temperature: 0.25))

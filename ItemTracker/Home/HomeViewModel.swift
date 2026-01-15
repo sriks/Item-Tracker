@@ -12,7 +12,7 @@ import Observation
 class QueryViewModel {
     private var brain: ItemFindable
     var query: String = ""
-    private(set) var answer: String?
+    private(set) var answer: String? = "See your answers here."
     
     init(brain: ItemFindable) {
         self.brain = brain
