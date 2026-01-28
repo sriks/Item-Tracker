@@ -9,57 +9,6 @@ import Foundation
 import FoundationModels
 import AsyncAlgorithms
 
-//class LanguageSession {
-////    private let isRespondingChannel = AsyncChannel<Bool>()
-////    var isResponding: AsyncChannel<Bool>.AsyncIterator {
-////        isRespondingChannel.makeAsyncIterator()
-////    }
-//    let verbose: Bool
-//    let instructions: String
-//    private lazy var session = LanguageModelSession(model: .init(useCase: .general, guardrails: .permissiveContentTransformations), instructions: instructions)
-//    
-//    init(instructions: String, verbose: Bool = false) {
-//        self.instructions = instructions
-//        self.verbose = verbose
-//    }
-//    
-//    deinit {
-//        print("deinit LanguageSession responsing \(session.isResponding)")
-//    }
-//    
-//    func respond<Response>(to prompt: String) async throws -> Response where Response: Generable {
-////        defer {
-////            Task {
-////                await isRespondingChannel.send(session.isResponding)
-////            }
-////        }
-//
-////        await isRespondingChannel.send(true)
-//        // TODO: Run in a background task since this can take a while to respond.
-//        do {
-//            if verbose {
-//                print("Session responding with \n instructions: \(instructions) \n prompt: \(prompt)")
-//            }
-//            let response = {
-//                if Response.Type == String.self {
-//                    try await session.respond(to: prompt, generating: Response.self)
-//                } else {
-//                    try await session.respond(to: prompt, generating: Response.self)
-//                }
-//            }()
-//            if verbose {
-//                print("Response: \(response.content)")
-//            }
-//            return response.content
-//        } catch {
-//            if verbose {
-//                print("Error: \(error)")
-//            }
-//            throw error
-//        }
-//    }
-//}
-
 public protocol ItemFindable {
     func findItem(question: String) async throws -> String?
 }

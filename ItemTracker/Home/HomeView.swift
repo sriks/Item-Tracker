@@ -14,20 +14,8 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-//                VStack() {
-//                    Text("Answer")
-//                    Text("Answer")
-//                    VStack(alignment: .leading) {
-//                        // MARK: Answer view
-//                        if let answer = queryViewModel.answer {
-//                            AnswerView(answer: answer).background(.green)
-//                        }
-//                    }
-//                    .fixedSize(horizontal: false, vertical: true)
-//                    .containerRelativeFrame(.vertical, alignment: .bottom)
-//                }
+                // Empty now
             }
-            .background(.blue)
             .safeAreaInset(edge: .bottom) {
                 // MARK: Query view
                 VStack {
