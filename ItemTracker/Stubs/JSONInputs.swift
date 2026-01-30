@@ -8,14 +8,6 @@ public struct InputsContainer: Codable, Equatable {
     public let inputs: [InputItem]
 }
 
-public struct InputItem: Codable, Equatable, Identifiable {
-    public var id: UUID = UUID()
-    public let text: String
-
-    // Custom CodingKeys to ignore `id` during encoding/decoding so it isn't expected in JSON
-    private enum CodingKeys: String, CodingKey { case text }
-}
-
 public enum JSONInputsLoader {
     /// Decodes a Decodable type `T` from raw `Data`.
     public static func decode<T: Decodable>(from data: Data, as type: T.Type = T.self, using decoder: JSONDecoder = JSONDecoder()) throws -> T {
