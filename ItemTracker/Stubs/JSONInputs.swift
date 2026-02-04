@@ -3,9 +3,14 @@
 
 import Foundation
 
+/// Simple struct for decoding JSON items
+struct JSONItem: Codable, Equatable {
+    let text: String
+}
+
 // Top-level structure that matches the JSON shape: { "inputs": [ { "text": "..." }, ... ] }
-public struct InputsContainer: Codable, Equatable {
-    public let inputs: [TextContent]
+struct InputsContainer: Codable, Equatable {
+    let inputs: [JSONItem]
 }
 
 public enum JSONInputsLoader {

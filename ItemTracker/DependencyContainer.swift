@@ -31,6 +31,18 @@ final class DependencyContainer: DependencyContaining {
     /// Uses persistent SwiftData storage
     static func production() throws -> DependencyContainer {
         let modelContainer = try ModelContainer(for: Item.self)
+
+        #if targetEnvironment(simulator)
+        // Seed with sample data only in simulator
+        if let sampleItems = Helpers.inputs() {
+            let context = modelContainer.mainContext
+            for item in sampleItems {
+                context.insert(item)
+            }
+            try? context.save()
+        }
+        #endif
+
         let repository = ItemsRepository(modelContainer: modelContainer)
         let brain = ReasoningBrain(itemsRepository: repository, instructions: nil)
         return DependencyContainer(
@@ -42,26 +54,27 @@ final class DependencyContainer: DependencyContaining {
 
     /// Factory method for preview/testing
     /// Uses in-memory storage pre-populated with sample data
+    @MainActor
     static func preview() throws -> DependencyContainer {
         let modelContainer = try ModelContainer(
             for: Item.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
-        let repository = ItemsRepository(modelContainer: modelContainer)
 
-        // Pre-populate with sample data from JSON or hardcoded items
+        // Pre-populate with sample data from JSON or fallback items
         let sampleItems = Helpers.inputs() ?? [
-            TextContent(text: "Kept toilet papers in 2nd row in storage area"),
-            TextContent(text: "Batteries are in the kitchen drawer")
+            Item(text: "Kept toilet papers in 2nd row in storage area"),
+            Item(text: "Batteries are in the kitchen drawer")
         ]
 
-        // Add items to the repository
-        Task {
-            for item in sampleItems {
-                try? await repository.add(text: item.text)
-            }
+        // Insert items directly into context
+        let context = modelContainer.mainContext
+        for item in sampleItems {
+            context.insert(item)
         }
+        try? context.save()
 
+        let repository = ItemsRepository(modelContainer: modelContainer)
         let brain = ReasoningBrain(itemsRepository: repository, instructions: nil)
         return DependencyContainer(
             modelContainer: modelContainer,

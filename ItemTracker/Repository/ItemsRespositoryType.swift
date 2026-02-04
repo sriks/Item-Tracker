@@ -5,18 +5,9 @@
 //  Created by Srikanth on 28/1/2026.
 //  Copyright © 2026 Dreamcode Pty Ltd. All rights reserved.
 //
+
 import Foundation
 import AsyncAlgorithms
-
-/// Simple struct for loading text content from JSON files
-/// Used for seeding data in preview/test environments
-public struct TextContent: Codable, Equatable {
-    public let text: String
-
-    public init(text: String) {
-        self.text = text
-    }
-}
 
 public protocol ItemsFetchable {
     /// Shared async sequence of items - broadcasts to multiple subscribers
