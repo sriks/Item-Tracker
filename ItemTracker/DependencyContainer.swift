@@ -34,6 +34,7 @@ final class DependencyContainer: DependencyContaining {
 
         #if targetEnvironment(simulator)
             // Seed with sample data only in simulator
+            print("PRE-CANNED DATA: Loading pre-canned data for simulator")
             if let sampleItems = Helpers.inputs() {
                 let context = modelContainer.mainContext
                 for item in sampleItems {
