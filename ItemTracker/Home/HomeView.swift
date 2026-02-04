@@ -52,6 +52,6 @@ struct HomeView: View {
 }
 
 #Preview {
-    let dependencies = DependencyContainer.preview()
+    let dependencies = try! DependencyContainer.preview()
     HomeView(queryViewModel: QueryViewModel(brain: dependencies.itemFinder))
 }

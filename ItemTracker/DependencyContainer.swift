@@ -6,40 +6,68 @@
 //
 
 import SwiftUI
+import SwiftData
 
 /// Protocol defining app-level dependencies
 protocol DependencyContaining {
     var itemFinder: ItemFindable { get }
+    var itemsRepository: ItemsRepositoryType { get }
 }
 
 /// Concrete implementation of dependency container
-/// Follows pattern from Stubs/Helpers.swift
 @MainActor
 final class DependencyContainer: DependencyContaining {
     let itemFinder: ItemFindable
+    let itemsRepository: ItemsRepositoryType
+    let modelContainer: ModelContainer
 
-    private init(itemFinder: ItemFindable) {
+    private init(modelContainer: ModelContainer, itemsRepository: ItemsRepositoryType, itemFinder: ItemFindable) {
+        self.modelContainer = modelContainer
+        self.itemsRepository = itemsRepository
         self.itemFinder = itemFinder
     }
 
     /// Factory method for production container
-    /// Loads inputs from JSON via Helpers
+    /// Uses persistent SwiftData storage
     static func production() throws -> DependencyContainer {
-        guard let notes = Helpers.inputs() else {
-            throw DependencyContainerError.failedToLoadInputs
-        }
-        let brain = ReasoningBrain(notes: notes, instructions: nil)
-        return DependencyContainer(itemFinder: brain)
+        let modelContainer = try ModelContainer(for: Item.self)
+        let repository = ItemsRepository(modelContainer: modelContainer)
+        let brain = ReasoningBrain(itemsRepository: repository, instructions: nil)
+        return DependencyContainer(
+            modelContainer: modelContainer,
+            itemsRepository: repository,
+            itemFinder: brain
+        )
     }
 
     /// Factory method for preview/testing
-    static func preview() -> DependencyContainer {
-        let notes = [
-            InputItem(text: "Kept toilet papers in 2nd row in storage area"),
-            InputItem(text: "Batteries are in the kitchen drawer")
+    /// Uses in-memory storage pre-populated with sample data
+    static func preview() throws -> DependencyContainer {
+        let modelContainer = try ModelContainer(
+            for: Item.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let repository = ItemsRepository(modelContainer: modelContainer)
+
+        // Pre-populate with sample data from JSON or hardcoded items
+        let sampleItems = Helpers.inputs() ?? [
+            TextContent(text: "Kept toilet papers in 2nd row in storage area"),
+            TextContent(text: "Batteries are in the kitchen drawer")
         ]
-        let brain = ReasoningBrain(notes: notes, instructions: nil)
-        return DependencyContainer(itemFinder: brain)
+
+        // Add items to the repository
+        Task {
+            for item in sampleItems {
+                try? await repository.add(text: item.text)
+            }
+        }
+
+        let brain = ReasoningBrain(itemsRepository: repository, instructions: nil)
+        return DependencyContainer(
+            modelContainer: modelContainer,
+            itemsRepository: repository,
+            itemFinder: brain
+        )
     }
 }
 

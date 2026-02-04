@@ -53,7 +53,7 @@ struct SettingsView: View {
 }
 
 #Preview {
-    let dependencies = DependencyContainer.preview()
+    let dependencies = try! DependencyContainer.preview()
     return ContentView()
         .environment(\.dependencies, dependencies)
 }

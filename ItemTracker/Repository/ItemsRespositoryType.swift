@@ -8,12 +8,14 @@
 import Foundation
 import AsyncAlgorithms
 
-public struct InputItem: Codable, Equatable, Identifiable {
-    public var id: UUID = UUID()
+/// Simple struct for loading text content from JSON files
+/// Used for seeding data in preview/test environments
+public struct TextContent: Codable, Equatable {
     public let text: String
 
-    // Custom CodingKeys to ignore `id` during encoding/decoding so it isn't expected in JSON
-    private enum CodingKeys: String, CodingKey { case text }
+    public init(text: String) {
+        self.text = text
+    }
 }
 
 public protocol ItemsFetchable {

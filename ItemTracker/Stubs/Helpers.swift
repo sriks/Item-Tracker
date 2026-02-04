@@ -10,7 +10,8 @@ import Foundation
 enum Helpers {}
 
 extension Helpers {
-    static func inputs(fileName: String = "inputs") -> [InputItem]? {
+    /// Loads text content from JSON file for seeding data
+    static func inputs(fileName: String = "inputs") -> [TextContent]? {
         do {
             let container: InputsContainer = try JSONInputsLoader.loadFromBundle(named: fileName)
             return container.inputs
@@ -18,11 +19,5 @@ extension Helpers {
             print(error)
             return nil
         }
-    }
-    
-    static func prefilWithInputs(fileName: String = "inputs") -> ReasoningBrain? {
-        let inputs = Self.inputs(fileName: fileName)!
-        let brain = ReasoningBrain(notes: inputs, instructions: nil)
-        return brain
     }
 }
