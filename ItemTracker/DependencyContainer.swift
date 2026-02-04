@@ -33,14 +33,14 @@ final class DependencyContainer: DependencyContaining {
         let modelContainer = try ModelContainer(for: Item.self)
 
         #if targetEnvironment(simulator)
-        // Seed with sample data only in simulator
-        if let sampleItems = Helpers.inputs() {
-            let context = modelContainer.mainContext
-            for item in sampleItems {
-                context.insert(item)
+            // Seed with sample data only in simulator
+            if let sampleItems = Helpers.inputs() {
+                let context = modelContainer.mainContext
+                for item in sampleItems {
+                    context.insert(item)
+                }
+                try? context.save()
             }
-            try? context.save()
-        }
         #endif
 
         let repository = ItemsRepository(modelContainer: modelContainer)
@@ -64,7 +64,7 @@ final class DependencyContainer: DependencyContaining {
         // Pre-populate with sample data from JSON or fallback items
         let sampleItems = Helpers.inputs() ?? [
             Item(text: "Kept toilet papers in 2nd row in storage area"),
-            Item(text: "Batteries are in the kitchen drawer")
+            Item(text: "Batteries are in the kitchen drawer"),
         ]
 
         // Insert items directly into context
@@ -88,14 +88,6 @@ enum DependencyContainerError: Error {
     case failedToLoadInputs
 }
 
-/// Environment key for dependency injection
-private struct DependencyContainerKey: EnvironmentKey {
-    static let defaultValue: DependencyContainer? = nil
-}
-
 extension EnvironmentValues {
-    var dependencies: DependencyContainer? {
-        get { self[DependencyContainerKey.self] }
-        set { self[DependencyContainerKey.self] = newValue }
-    }
+    @Entry var dependencies: DependencyContainer?
 }

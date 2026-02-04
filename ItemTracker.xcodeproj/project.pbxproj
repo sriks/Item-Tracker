@@ -106,6 +106,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AD0E80E62EA1C99D00D75EA0 /* Build configuration list for PBXNativeTarget "ItemTracker" */;
 			buildPhases = (
+				AD153F912F1700000SWIFTFMT /* SwiftFormat */,
 				AD153F902F1700000SWIFTLNT /* SwiftLint */,
 				AD0E80BF2EA1C99C00D75EA0 /* Sources */,
 				AD0E80C02EA1C99C00D75EA0 /* Frameworks */,
@@ -245,6 +246,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		AD153F912F1700000SWIFTFMT /* SwiftFormat */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftFormat;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftformat > /dev/null; then\n  swiftformat .\nelse\n  echo \"warning: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat\"\nfi\n";
+		};
 		AD153F902F1700000SWIFTLNT /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;

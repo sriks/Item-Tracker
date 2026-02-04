@@ -11,9 +11,9 @@ import Observation
 @Observable @MainActor
 class QueryViewModel {
     private var brain: ItemFindable
-    var query: String = ""
+    var query = ""
     private(set) var answer: String? = "See your answers here."
-    
+
     init(brain: ItemFindable) {
         self.brain = brain
     }
@@ -24,9 +24,9 @@ extension QueryViewModel {
         Task { [weak self] in
             guard let self else { return }
             do {
-                self.answer = try await brain.findItem(question: self.query)
+                answer = try await brain.findItem(question: query)
             } catch {
-                self.answer = "Could not find that item. \(error)"
+                answer = "Could not find that item. \(error)"
             }
         }
     }

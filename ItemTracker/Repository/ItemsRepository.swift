@@ -10,22 +10,22 @@ import AsyncAlgorithms
 import Foundation
 import SwiftData
 
-/// Repository acting as the data gateway for all items. Takes care of persisting. View model should use this. 
+/// Repository acting as the data gateway for all items. Takes care of persisting. View model should use this.
 @MainActor
-final public class ItemsRepository: ItemsFetchable {
+public final class ItemsRepository: ItemsFetchable {
     // MARK: - Dependencies
     private let modelContext: ModelContext
-    
+
     // MARK: - Cached State
     private var cachedItems: [Item] = []
-    
+
     // MARK: - Stream infra
     private let itemsStream: AsyncStream<[Item]>
     private let itemsStreamContinuation: AsyncStream<[Item]>.Continuation
-    
+
     // MARK: - API
     public let itemsSharedStream: any AsyncSequence<[Item], Never> & Sendable
-    
+
     public init(modelContainer: ModelContainer) {
         let (stream, continuation) = AsyncStream<[Item]>.makeStream()
         itemsStream = stream
@@ -34,11 +34,11 @@ final public class ItemsRepository: ItemsFetchable {
         itemsSharedStream = itemsStream.share()
         try? refreshAndEmit()
     }
-    
+
     deinit {
         itemsStreamContinuation.finish()
     }
-    
+
     /// Refreshes items by fetching from data store and updating the stream.
     private func refreshAndEmit() throws {
         let descriptor = FetchDescriptor<Item>(sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
@@ -59,7 +59,7 @@ extension ItemsRepository: ItemsMutatable {
         try modelContext.save()
         try refreshAndEmit()
     }
-    
+
     public func delete(_ item: Item) async throws {
         modelContext.delete(item)
         try modelContext.save()

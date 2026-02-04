@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - Home View
 struct HomeView: View {
     @Bindable var queryViewModel: QueryViewModel
-    
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -19,7 +19,6 @@ struct HomeView: View {
             .safeAreaInset(edge: .bottom) {
                 // MARK: Query view
                 VStack {
-                    
                     if let answer = queryViewModel.answer {
                         AnswerView(answer: answer)
                             .fixedSize(horizontal: false, vertical: true)

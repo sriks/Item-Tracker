@@ -16,7 +16,6 @@ import SwiftData
 @Suite(.serialized)
 @MainActor
 struct ItemsRepositoryTests {
-
     // MARK: - Initialization Tests
 
     @Test("Repository emits empty array on init with empty container")

@@ -1,0 +1,103 @@
+# SwiftFormat configuration for ItemTracker
+# https://github.com/nicklockwood/SwiftFormat
+
+# Swift version
+--swiftversion 6.0
+
+# File options
+--exclude DerivedData,Packages,.build,*.generated.swift
+
+# Format options
+
+# Indentation
+--indent 4
+--tabwidth 4
+--smarttabs enabled
+--indentcase false
+--ifdef indent
+
+# Wrapping
+--maxwidth 120
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--wrapconditions after-first
+--wrapreturntype if-multiline
+--wrapeffects if-multiline
+--wraptypealiases before-first
+--closingparen balanced
+
+# Spacing
+--operatorfunc spaced
+--nospaceoperators ..<,...
+--ranges spaced
+--typeattributes prev-line
+--varattributes same-line
+--funcattributes prev-line
+--storedvarattrs same-line
+--computedvarattrs same-line
+
+# Braces
+--allman false
+--elseposition same-line
+--guardelse auto
+
+# Blank lines
+--emptybraces no-space
+--trimwhitespace always
+--linebreaks lf
+
+# Semicolons
+--semicolons never
+
+# Imports
+--importgrouping alpha
+
+# Redundant code removal
+--redundanttype inferred
+--stripunusedargs closure-only
+--self remove
+
+# Other
+--patternlet hoist
+--commas always
+--decimalgrouping 3,4
+--binarygrouping 4,8
+--octalgrouping 4,8
+--hexgrouping 4,8
+--exponentcase lowercase
+--hexliteralcase uppercase
+--fractiongrouping disabled
+--exponentgrouping disabled
+--header ignore
+--marktypes never
+--markextensions never
+--extensionacl on-declarations
+--typeblanklines remove
+
+# Enabled rules (default + extras)
+--enable blankLineAfterImports
+--enable blankLinesBetweenImports
+--enable isEmpty
+--enable sortSwitchCases
+--enable wrapEnumCases
+--enable wrapSwitchCases
+
+# Disabled rules
+--disable acronyms
+--disable sortedImports
+--disable wrapMultilineStatementBraces
+--disable trailingClosures
+--disable redundantBackticks
+
+# Disabled rules that are too aggressive for existing codebases
+--disable organizeDeclarations
+--disable markTypes
+--disable wrapConditionalBodies
+--disable blankLinesAroundMark
+--disable sortImports
+--disable docComments
+--disable blockComments
+--disable redundantProperty
+--disable hoistAwait
+--disable genericExtensions

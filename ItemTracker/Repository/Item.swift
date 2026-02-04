@@ -1,5 +1,5 @@
 //
-//  ItemsRepository.swift
+//  Item.swift
 //  ItemTracker
 //
 //  Created by Srikanth on 28/1/2026.
@@ -19,19 +19,19 @@ public final class Item: Sendable {
     public var lastModified: Date
 
     // Future CloudKit fields
-    public var isSynced: Bool = false
+    public var isSynced = false
     /// Person who created it. Useful in family sharing environment.
     public var createdBy: String?
     /// Indicates is this item can be shared in a family group.
-    public var isShared: Bool = false
+    public var isShared = false
 
     init(text: String, createdBy: String? = nil) {
-        self.id = UUID()
+        id = UUID()
         self.text = text
-        self.timestamp = Date()
-        self.lastModified = Date()
+        timestamp = Date()
+        lastModified = Date()
         self.createdBy = createdBy
-        self.isSynced = false
-        self.isShared = false
+        isSynced = false
+        isShared = false
     }
 }

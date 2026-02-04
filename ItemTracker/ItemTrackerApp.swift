@@ -14,7 +14,7 @@ struct ItemTrackerApp: App {
 
     init() {
         do {
-            self.dependencies = try DependencyContainer.production()
+            dependencies = try DependencyContainer.production()
         } catch {
             fatalError("Failed to initialize dependencies: \(error)")
         }

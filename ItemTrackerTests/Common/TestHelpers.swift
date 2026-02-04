@@ -12,7 +12,6 @@ import SwiftData
 
 /// Common test utilities shared across all test files
 public enum TestHelpers {
-
     /// Creates an in-memory ModelContainer for isolated testing.
     /// Each call returns a fresh container with no persisted data.
     @MainActor

@@ -5,7 +5,6 @@
 //  Created by Srikanth on 13/1/2026.
 //
 
-
 import SwiftUI
 
 // MARK: - Reusable Animated Glow Effect
@@ -14,12 +13,12 @@ struct AnimatedGlowEffect: View {
     @State private var animateGradient = true
     let cornerRadius: CGFloat
     let maskRadius: CGFloat
-    
+
     init(cornerRadius: CGFloat = 16, maskRadius: CGFloat = 120) {
         self.cornerRadius = cornerRadius
         self.maskRadius = maskRadius
     }
-    
+
     var body: some View {
         RoundedRectangle(cornerRadius: cornerRadius)
             .fill(
@@ -29,7 +28,7 @@ struct AnimatedGlowEffect: View {
                         Color.purple.opacity(0.15),
                         Color.pink.opacity(0.15),
                         Color.orange.opacity(0.15),
-                        Color.yellow.opacity(0.15)
+                        Color.yellow.opacity(0.15),
                     ]),
                     startPoint: animateGradient ? .topLeading : .bottomTrailing,
                     endPoint: animateGradient ? .bottomTrailing : .topLeading
@@ -60,7 +59,7 @@ struct AnimatedGlowEffect: View {
                     gradient: Gradient(stops: [
                         .init(color: .black, location: 0.0),
                         .init(color: .black, location: 0.7),
-                        .init(color: .clear, location: 1.0)
+                        .init(color: .clear, location: 1.0),
                     ]),
                     center: .center,
                     startRadius: 10,
