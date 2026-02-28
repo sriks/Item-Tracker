@@ -1,0 +1,39 @@
+# Xcode user-specific files
+xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Xcode build output
+DerivedData/
+build/
+
+# Xcode auto-created backups
+*.xcscmblueprint
+*.xccheckout
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Swift Package Manager
+.build/
+# Package.resolved is intentionally tracked for reproducible builds
+
+# CocoaPods (not used, but defensive)
+Pods/
+Podfile.lock
+
+# Fastlane (not used, but defensive)
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
