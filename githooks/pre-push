@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+echo "Running SwiftFormat check..."
+swiftformat --config "$REPO_ROOT/.swiftformat" --lint "$REPO_ROOT" \
+    --exclude "$REPO_ROOT/.build" 2>&1
+if [ $? -ne 0 ]; then
+    echo "SwiftFormat check failed. Run 'swiftformat .' to fix formatting."
+    exit 1
+fi
+
+echo "Running SwiftLint..."
+swiftlint lint --config "$REPO_ROOT/.swiftlint.yml" "$REPO_ROOT" 2>&1
+if [ $? -ne 0 ]; then
+    echo "SwiftLint check failed. Fix the issues above before pushing."
+    exit 1
+fi
+
+echo "All checks passed."
