@@ -2,8 +2,6 @@
 //  DependencyContainer.swift
 //  ItemTracker
 //
-//  Created by Claude Code
-//
 
 import SwiftUI
 import SwiftData
@@ -31,18 +29,20 @@ final class DependencyContainer: DependencyContaining {
     /// Uses persistent SwiftData storage
     static func production() throws -> DependencyContainer {
         let modelContainer = try ModelContainer(for: Item.self)
+        let shouldPopulateWithData: Bool = {
+            #if targetEnvironment(simulator)
+                return true
+            #else
+                // Populating with pre canned data for dev builds.
+                // TODO: Remove or control this via a flag.
+                return true
+            #endif
+        }()
 
-        #if targetEnvironment(simulator)
+        if shouldPopulateWithData {
             // Seed with sample data only in simulator
-            print("PRE-CANNED DATA: Loading pre-canned data for simulator")
-            if let sampleItems = Helpers.inputs() {
-                let context = modelContainer.mainContext
-                for item in sampleItems {
-                    context.insert(item)
-                }
-                try? context.save()
-            }
-        #endif
+            populateWithCannedData(modelContainer: modelContainer)
+        }
 
         let repository = ItemsRepository(modelContainer: modelContainer)
         let brain = ReasoningBrain(itemsRepository: repository, instructions: nil)
@@ -82,6 +82,17 @@ final class DependencyContainer: DependencyContaining {
             itemsRepository: repository,
             itemFinder: brain
         )
+    }
+
+    private static func populateWithCannedData(modelContainer: ModelContainer) {
+        print("PRE-CANNED DATA: Loading pre-canned data")
+        if let sampleItems = Helpers.inputs() {
+            let context = modelContainer.mainContext
+            for item in sampleItems {
+                context.insert(item)
+            }
+            try? context.save()
+        }
     }
 }
 

@@ -12,7 +12,7 @@ struct ContentView: View {
                         Label("Home", systemImage: "house.fill")
                     }
 
-                ItemsView()
+                ItemsView(viewModel: ItemsViewModel(repository: deps.itemsRepository))
                     .tabItem {
                         Label("Items", systemImage: "list.bullet")
                     }
@@ -22,19 +22,6 @@ struct ContentView: View {
                         Label("Settings", systemImage: "gearshape.fill")
                     }
             }
-        }
-    }
-}
-
-// MARK: - Items View
-struct ItemsView: View {
-    var body: some View {
-        NavigationStack {
-            VStack {
-                Text("All saved items will appear here")
-                    .foregroundStyle(.secondary)
-            }
-            .navigationTitle("Items")
         }
     }
 }

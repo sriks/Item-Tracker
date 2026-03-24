@@ -9,27 +9,39 @@
 import Foundation
 import SwiftData
 
-/// A model representing an Item and saved into persistent store.
+/// The persisted representation of a user-saved item.
+///
+/// Each item holds free-form text describing where something is stored.
+/// The repository layer is responsible for reading and writing `Item` values;
+/// call sites such as view models should not interact with SwiftData directly.
 @Model
 public final class Item: Sendable {
+    /// Unique identifier for this item. Marked unique in the SwiftData store to prevent duplicates.
     @Attribute(.unique) public var id: UUID
-    /// user added free form text
+    /// The free-form text the user entered, e.g. "Toilet paper in 2nd row of storage area".
     public var text: String
+    /// When the item was first created.
     public var timestamp: Date
+    /// When the item was last modified.
     public var lastModified: Date
 
     // Future CloudKit fields
     public var isSynced = false
-    /// Person who created it. Useful in family sharing environment.
+    /// The person who created this item. Useful in a family-sharing environment.
     public var createdBy: String?
-    /// Indicates is this item can be shared in a family group.
+    /// Whether this item can be shared within a family group.
     public var isShared = false
 
-    init(text: String, createdBy: String? = nil) {
+    /// Creates a new item with the given text.
+    /// - Parameters:
+    ///   - text: The free-form description to store.
+    ///   - timestamp: Creation date. Defaults to now; pass a fixed value in tests for determinism.
+    ///   - createdBy: Optional name of the person creating the item.
+    init(text: String, timestamp: Date = Date(), createdBy: String? = nil) {
         id = UUID()
         self.text = text
-        timestamp = Date()
-        lastModified = Date()
+        self.timestamp = timestamp
+        lastModified = timestamp
         self.createdBy = createdBy
         isSynced = false
         isShared = false
