@@ -20,7 +20,7 @@ public final class Item: Sendable {
     public enum Error: Swift.Error {
         case emptyText
     }
-    
+
     /// Unique identifier for this item. Marked unique in the SwiftData store to prevent duplicates.
     @Attribute(.unique) public var id: String
     /// The free-form text the user entered, e.g. "Toilet paper in 2nd row of storage area".
@@ -62,7 +62,7 @@ extension Item {
     static func persistentHashString(_ input: String) -> String {
         let data = Data(input.utf8)
         let digest = SHA256.hash(data: data)
-        
+
         // Convert the digest to a hex string for easy storage/comparison
         return digest.compactMap { String(format: "%02x", $0) }.joined()
     }

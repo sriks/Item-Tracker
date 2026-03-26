@@ -38,9 +38,9 @@ public final class ItemsRepository: ItemsFetchable {
     deinit {
         itemsStreamContinuation.finish()
     }
-    
+
     public var allItems: [Item] {
-        return cachedItems
+        cachedItems
     }
 
     /// Refreshes items by fetching from data store and updating the stream.

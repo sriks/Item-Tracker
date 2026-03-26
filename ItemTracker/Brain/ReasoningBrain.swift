@@ -77,7 +77,7 @@ class ReasoningBrain: ItemFindable {
         isRespondingContinuation.yield(true)
 
         // Fetch current items from repository
-        //let items = await fetchCurrentItems()
+        // let items = await fetchCurrentItems()
         let items = itemsRepository.allItems
         let prompt = createPrompt(items: items, question: question)
 

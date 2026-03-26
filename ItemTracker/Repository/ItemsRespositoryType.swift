@@ -13,7 +13,7 @@ public protocol ItemsFetchable {
     /// Shared async sequence of items - broadcasts to multiple subscribers
     /// Returns items sorted by timestamp (newest first)
     var itemsSharedStream: any AsyncSequence<[Item], Never> & Sendable { get }
-    
+
     var allItems: [Item] { get }
 }
 

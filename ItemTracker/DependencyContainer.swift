@@ -97,7 +97,6 @@ final class DependencyContainer: DependencyContaining {
             } catch {
                 fatalError("Unable to add item")
             }
-            
         }
     }
 }
