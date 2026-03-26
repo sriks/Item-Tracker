@@ -14,7 +14,7 @@ import Observation
 /// without containing any presentation logic.
 struct ItemDisplayModel: Equatable, Identifiable {
     /// Stable identifier matching the underlying `Item`.
-    let id: UUID
+    let id: String
     /// The free-form text the user saved.
     let text: String
     /// The item's creation date formatted as "DD MMM YYYY" (e.g. "24 Mar 2026").

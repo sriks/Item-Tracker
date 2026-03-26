@@ -79,7 +79,7 @@ struct ItemsViewModelTests {
         let mock = MockItemsRepository()
         let sut = ItemsViewModel(repository: mock, mutableRepository: mock)
 
-        let item = Item(text: "Toilet paper in storage")
+        let item = try! Item(text: "Toilet paper in storage")
         mock.emit([item])
         await waitUntil(sut.items.count == 1)
 
@@ -92,7 +92,7 @@ struct ItemsViewModelTests {
         let mock = MockItemsRepository()
         let sut = ItemsViewModel(repository: mock, mutableRepository: mock)
 
-        let item = Item(text: "Keys on shelf")
+        let item = try! Item(text: "Keys on shelf")
         let capturedId = item.id
         mock.emit([item])
         await waitUntil(!sut.items.isEmpty)
@@ -112,7 +112,7 @@ struct ItemsViewModelTests {
         components.month = 3
         components.year = 2_026
         let fixedDate = try #require(Calendar.current.date(from: components))
-        let item = Item(text: "Test", timestamp: fixedDate)
+        let item = try! Item(text: "Test", timestamp: fixedDate)
         mock.emit([item])
         await waitUntil(!sut.items.isEmpty)
 
@@ -124,12 +124,12 @@ struct ItemsViewModelTests {
         let mock = MockItemsRepository()
         let sut = ItemsViewModel(repository: mock, mutableRepository: mock)
 
-        let first = Item(text: "First")
+        let first = try! Item(text: "First")
         mock.emit([first])
         await waitUntil(sut.items.count == 1)
         #expect(sut.items.count == 1)
 
-        let second = Item(text: "Second")
+        let second = try! Item(text: "Second")
         mock.emit([first, second])
         await waitUntil(sut.items.count == 2)
         #expect(sut.items.count == 2)
@@ -140,7 +140,7 @@ struct ItemsViewModelTests {
         let mock = MockItemsRepository()
         let sut = ItemsViewModel(repository: mock, mutableRepository: mock)
 
-        mock.emit([Item(text: "Something")])
+        mock.emit([try! Item(text: "Something")])
         await waitUntil(sut.items.count == 1)
         #expect(sut.items.count == 1)
 

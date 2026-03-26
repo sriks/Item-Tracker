@@ -58,7 +58,7 @@ public final class ItemsRepository: ItemsFetchable {
 
 extension ItemsRepository: ItemsMutatable {
     public func add(text: String) async throws {
-        let toAdd = Item(text: text)
+        let toAdd = try Item(text: text)
         modelContext.insert(toAdd)
         try modelContext.save()
         try refreshAndEmit()

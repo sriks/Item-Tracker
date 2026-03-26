@@ -17,8 +17,8 @@ extension Helpers {
             let container: InputsContainer = try JSONInputsLoader.loadFromBundle(named: fileName)
             let baseDate = Date()
 
-            return container.inputs.enumerated().map { index, jsonItem in
-                let item = Item(text: jsonItem.text)
+            return container.inputs.enumerated().compactMap { index, jsonItem in
+                guard let item = try? Item(text: jsonItem.text) else { return nil }
                 item.timestamp = baseDate.addingTimeInterval(TimeInterval(index))
                 item.lastModified = item.timestamp
                 return item

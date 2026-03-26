@@ -64,8 +64,8 @@ final class DependencyContainer: DependencyContaining {
 
         // Pre-populate with sample data from JSON or fallback items
         let sampleItems = Helpers.inputs() ?? [
-            Item(text: "Kept toilet papers in 2nd row in storage area"),
-            Item(text: "Batteries are in the kitchen drawer"),
+            try! Item(text: "Kept toilet papers in 2nd row in storage area"),
+            try! Item(text: "Batteries are in the kitchen drawer"),
         ]
 
         // Insert items directly into context
@@ -89,9 +89,15 @@ final class DependencyContainer: DependencyContaining {
         if let sampleItems = Helpers.inputs() {
             let context = modelContainer.mainContext
             for item in sampleItems {
+                debugPrint("Attempting to add \(item.text) with id \(item.id)")
                 context.insert(item)
             }
-            try? context.save()
+            do {
+                try context.save()
+            } catch {
+                fatalError("Unable to add item")
+            }
+            
         }
     }
 }
