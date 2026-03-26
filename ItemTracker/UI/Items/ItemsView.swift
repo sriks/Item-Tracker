@@ -15,6 +15,7 @@ import SwiftUI
 /// the view binds directly to pre-formatted strings from `ItemDisplayModel`.
 struct ItemsView: View {
     var viewModel: ItemsViewModel
+    @State private var showAddItem = false
 
     var body: some View {
         NavigationStack {
@@ -37,6 +38,60 @@ struct ItemsView: View {
                 }
             }
             .navigationTitle("Items")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        showAddItem = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddItem) {
+                AddItemSheet(viewModel: viewModel)
+            }
         }
+    }
+}
+
+private struct AddItemSheet: View {
+    var viewModel: ItemsViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var text = ""
+    @State private var isSaving = false
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 12) {
+                TextEditor(text: $text)
+                    .frame(minHeight: 120)
+                    .padding(8)
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .disabled(isSaving)
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("New Item")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                        .disabled(isSaving)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+                        isSaving = true
+                        Task {
+                            try? await viewModel.addItem(text: text.trimmingCharacters(in: .whitespacesAndNewlines))
+                            dismiss()
+                        }
+                    }
+                    .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSaving)
+                }
+            }
+        }
+        .presentationDetents([.medium])
     }
 }

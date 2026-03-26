@@ -32,12 +32,21 @@ class ItemsViewModel {
     private(set) var items: [ItemDisplayModel] = []
 
     private let repository: ItemsFetchable
+    private let mutableRepository: ItemsMutatable
 
     /// Creates the view model and begins observing the repository stream immediately.
-    /// - Parameter repository: The data source to subscribe to. Only fetch capability is required.
-    init(repository: ItemsFetchable) {
+    /// - Parameters:
+    ///   - repository: The data source to subscribe to for fetch capability.
+    ///   - mutableRepository: The data source for add/delete capability.
+    init(repository: ItemsFetchable, mutableRepository: ItemsMutatable) {
         self.repository = repository
+        self.mutableRepository = mutableRepository
         startObserving()
+    }
+
+    /// Adds a new item with the given text to the repository.
+    func addItem(text: String) async throws {
+        try await mutableRepository.add(text: text)
     }
 
     /// Opens a long-lived async loop that maps each repository emission to display models.

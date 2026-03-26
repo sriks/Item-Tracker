@@ -12,10 +12,13 @@ struct ContentView: View {
                         Label("Home", systemImage: "house.fill")
                     }
 
-                ItemsView(viewModel: ItemsViewModel(repository: deps.itemsRepository))
-                    .tabItem {
-                        Label("Items", systemImage: "list.bullet")
-                    }
+                ItemsView(viewModel: ItemsViewModel(
+                    repository: deps.itemsRepository,
+                    mutableRepository: deps.itemsRepository
+                ))
+                .tabItem {
+                    Label("Items", systemImage: "list.bullet")
+                }
 
                 SettingsView()
                     .tabItem {
