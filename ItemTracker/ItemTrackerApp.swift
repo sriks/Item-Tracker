@@ -13,8 +13,11 @@ struct ItemTrackerApp: App {
     private let dependencies: DependencyContainer
 
     init() {
+        let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
         do {
-            dependencies = try DependencyContainer.production()
+            dependencies = try isPreview
+                ? DependencyContainer.preview()
+                : DependencyContainer.production()
         } catch {
             fatalError("Failed to initialize dependencies: \(error)")
         }

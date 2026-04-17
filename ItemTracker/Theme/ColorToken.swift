@@ -14,14 +14,14 @@ enum ColorToken: String, Codable, CaseIterable {
 
     var color: Color {
         switch self {
-        case .amber:  Color(hex: "#EF9F27")
-        case .blue:   Color(hex: "#378ADD")
+        case .amber: Color(hex: "#EF9F27")
+        case .blue: Color(hex: "#378ADD")
         case .purple: Color(hex: "#7F77DD")
-        case .green:  Color(hex: "#639922")
-        case .coral:  Color(hex: "#D85A30")
-        case .teal:   Color(hex: "#1D9E75")
-        case .pink:   Color(hex: "#D4537E")
-        case .red:    Color(hex: "#E24B4A")
+        case .green: Color(hex: "#639922")
+        case .coral: Color(hex: "#D85A30")
+        case .teal: Color(hex: "#1D9E75")
+        case .pink: Color(hex: "#D4537E")
+        case .red: Color(hex: "#E24B4A")
         }
     }
 }

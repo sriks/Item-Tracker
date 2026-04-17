@@ -3,7 +3,6 @@ import CoreGraphics
 /// All fixed design numbers for the app — shape and layout constants in one place.
 /// Injected as `@Environment(\.constants)` so views never reference raw numbers directly.
 struct DesignConstants {
-
     // MARK: - Shape
 
     let cornerRadiusCard: CGFloat = 16
