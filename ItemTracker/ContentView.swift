@@ -3,6 +3,7 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         TabView {
@@ -26,6 +27,7 @@ struct ContentView: View {
                     }
             }
         }
+        .appTheme(MonochromeTheme(scheme: colorScheme))
     }
 }
 

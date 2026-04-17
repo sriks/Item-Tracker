@@ -83,3 +83,7 @@ User question via TextField → ReasoningBrain.findItem() → LanguageModelSessi
 - Uses Swift async/await with strict concurrency checking. Default actor isolation is MainActor. AI operations run in Task blocks with temperature 0.25 for deterministic responses.
 - Use Swift Approachable concurrency.
 - Refer to swift concurrency skill which is already installed.
+
+## Design
+
+See design/DESIGN.md for how to build the UI for features.
