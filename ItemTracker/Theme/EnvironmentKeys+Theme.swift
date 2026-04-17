@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - Environment key
+// MARK: - Theme environment key
 
 private struct AppThemeKey: EnvironmentKey {
     static let defaultValue: any AppTheme = MonochromeTheme(scheme: .dark)
@@ -13,7 +13,20 @@ extension EnvironmentValues {
     }
 }
 
-// MARK: - View modifier
+// MARK: - Constants environment key
+
+private struct DesignConstantsKey: EnvironmentKey {
+    static let defaultValue = DesignConstants()
+}
+
+extension EnvironmentValues {
+    var constants: DesignConstants {
+        get { self[DesignConstantsKey.self] }
+        set { self[DesignConstantsKey.self] = newValue }
+    }
+}
+
+// MARK: - View modifiers
 
 extension View {
     /// Injects the given theme into the SwiftUI environment.

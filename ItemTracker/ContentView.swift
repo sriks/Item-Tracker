@@ -28,6 +28,7 @@ struct ContentView: View {
             }
         }
         .appTheme(MonochromeTheme(scheme: colorScheme))
+        .environment(\.constants, DesignConstants())
     }
 }
 
