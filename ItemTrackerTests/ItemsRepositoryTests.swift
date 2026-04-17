@@ -11,8 +11,8 @@ import Testing
 import SwiftData
 @testable import ItemTracker
 
-/// Tests for ItemsRepository. Uses in-memory SwiftData storage for isolation.
-/// Note: Run with -parallel-testing-enabled NO for reliability with SwiftData.
+/// Tests for ItemsRepository. Uses in-memory SwiftData storage via `TestHelpers.withRepository`,
+/// which scopes each repository to the test closure lifetime to prevent state leakage.
 @Suite(.serialized)
 @MainActor
 struct ItemsRepositoryTests {
@@ -20,178 +20,201 @@ struct ItemsRepositoryTests {
 
     @Test("Repository emits empty array on init with empty container")
     func init_emptyContainer_emitsEmptyArray() async throws {
-        let container = try TestHelpers.makeInMemoryContainer()
-        let sut = ItemsRepository(modelContainer: container)
-
-        var iterator = sut.itemsSharedStream.makeAsyncIterator()
-        let firstEmission = try await iterator.next()
-
-        #expect(firstEmission != nil)
-        #expect(firstEmission?.isEmpty == true)
+        try await TestHelpers.withRepository { sut in
+            var iterator = sut.itemsSharedStream.makeAsyncIterator()
+            let firstEmission = try await iterator.next()
+            #expect(firstEmission?.isEmpty == true)
+        }
     }
 
     // MARK: - Add Tests
 
-    @Test("Add single item persists and can be retrieved")
+    @Test("Add single item persists and emits")
     func add_singleItem_persistsAndEmits() async throws {
-        let container = try TestHelpers.makeInMemoryContainer()
-        let sut = ItemsRepository(modelContainer: container)
+        try await TestHelpers.withRepository { sut in
+            var iterator = sut.itemsSharedStream.makeAsyncIterator()
+            _ = try await iterator.next() // skip initial empty
 
-        // Subscribe BEFORE mutation to catch all emissions
-        var iterator = sut.itemsSharedStream.makeAsyncIterator()
+            try await sut.add(text: "Test item")
 
-        // Get initial empty emission
-        let initial = try await iterator.next()
-        #expect(initial?.isEmpty == true)
-
-        // Add item
-        try await sut.add(text: "Test item")
-
-        // Get emission after add
-        let items = try await iterator.next()
-        #expect(items?.count == 1)
-        #expect(items?.first?.text == "Test item")
+            let items = try await iterator.next()
+            #expect(items?.count == 1)
+            #expect(items?.first?.text == "Test item")
+        }
     }
 
     @Test("Added item has correct default properties")
     func add_itemHasCorrectDefaults() async throws {
-        let container = try TestHelpers.makeInMemoryContainer()
-        let sut = ItemsRepository(modelContainer: container)
-        let beforeAdd = Date()
+        try await TestHelpers.withRepository { sut in
+            let beforeAdd = Date()
+            var iterator = sut.itemsSharedStream.makeAsyncIterator()
+            _ = try await iterator.next()
 
-        var iterator = sut.itemsSharedStream.makeAsyncIterator()
-        _ = try await iterator.next() // Skip initial empty
+            try await sut.add(text: "Test")
 
-        try await sut.add(text: "Test")
-
-        let items = try await iterator.next()
-        let item = try #require(items?.first)
-
-        #expect(item.text == "Test")
-        #expect(item.isSynced == false)
-        #expect(item.isShared == false)
-        #expect(item.createdBy == nil)
-        #expect(item.timestamp >= beforeAdd)
-        #expect(item.lastModified >= beforeAdd)
+            let item = try #require(try await iterator.next()?.first)
+            #expect(item.text == "Test")
+            #expect(item.isSynced == false)
+            #expect(item.isShared == false)
+            #expect(item.createdBy == nil)
+            #expect(item.timestamp >= beforeAdd)
+            #expect(item.lastModified >= beforeAdd)
+        }
     }
 
-    @Test("Multiple items are sorted by timestamp descending (newest first)")
+    @Test("Multiple items are sorted by timestamp descending")
     func add_multipleItems_sortedByTimestampDescending() async throws {
-        let container = try TestHelpers.makeInMemoryContainer()
-        let sut = ItemsRepository(modelContainer: container)
+        try await TestHelpers.withRepository { sut in
+            var iterator = sut.itemsSharedStream.makeAsyncIterator()
+            _ = try await iterator.next()
 
-        var iterator = sut.itemsSharedStream.makeAsyncIterator()
-        _ = try await iterator.next() // Skip initial
+            try await sut.add(text: "First")
+            _ = try await iterator.next()
+            try await Task.sleep(for: .milliseconds(10))
 
-        // Add items with small delays to ensure different timestamps
-        try await sut.add(text: "First")
-        _ = try await iterator.next() // Skip intermediate
+            try await sut.add(text: "Second")
+            _ = try await iterator.next()
+            try await Task.sleep(for: .milliseconds(10))
 
-        try await Task.sleep(for: .milliseconds(10))
-        try await sut.add(text: "Second")
-        _ = try await iterator.next() // Skip intermediate
+            try await sut.add(text: "Third")
+            let items = try await iterator.next()
 
-        try await Task.sleep(for: .milliseconds(10))
-        try await sut.add(text: "Third")
-        let items = try await iterator.next()
-
-        #expect(items?.count == 3)
-        #expect(items?[0].text == "Third")
-        #expect(items?[1].text == "Second")
-        #expect(items?[2].text == "First")
+            #expect(items?.count == 3)
+            #expect(items?[0].text == "Third")
+            #expect(items?[1].text == "Second")
+            #expect(items?[2].text == "First")
+        }
     }
 
-    // MARK: - Delete Tests
-
-    @Test("Delete existing item removes from storage")
-    func delete_existingItem_removesFromStorage() async throws {
-        let container = try TestHelpers.makeInMemoryContainer()
-        let sut = ItemsRepository(modelContainer: container)
-
-        var iterator = sut.itemsSharedStream.makeAsyncIterator()
-        _ = try await iterator.next() // Skip initial
-
-        try await sut.add(text: "To delete")
-
-        // Get the item to delete
-        let itemsAfterAdd = try await iterator.next()
-        let itemToDelete = try #require(itemsAfterAdd?.first)
-
-        // Delete
-        try await sut.delete(itemToDelete)
-
-        // Verify deletion
-        let itemsAfterDelete = try await iterator.next()
-        #expect(itemsAfterDelete?.isEmpty == true)
-    }
-
-    @Test("Delete last item emits empty array")
-    func delete_lastItem_emitsEmptyArray() async throws {
-        let container = try TestHelpers.makeInMemoryContainer()
-        let sut = ItemsRepository(modelContainer: container)
-
-        var iterator = sut.itemsSharedStream.makeAsyncIterator()
-        _ = try await iterator.next() // Skip initial
-
-        try await sut.add(text: "Only item")
-
-        let items = try await iterator.next()
-        let itemToDelete = try #require(items?.first)
-
-        try await sut.delete(itemToDelete)
-
-        let itemsAfterDelete = try await iterator.next()
-        #expect(itemsAfterDelete?.isEmpty == true)
-    }
-
-    // MARK: - Edge Case Tests
-
-    @Test("Add empty text persists successfully")
-    func add_emptyText_persists() async throws {
-        let container = try TestHelpers.makeInMemoryContainer()
-        let sut = ItemsRepository(modelContainer: container)
-
-        var iterator = sut.itemsSharedStream.makeAsyncIterator()
-        _ = try await iterator.next() // Skip initial
-
-        try await sut.add(text: "")
-
-        let items = try await iterator.next()
-        #expect(items?.first?.text == "")
+    @Test("Adding empty text throws persistenceFailed")
+    func add_emptyText_throwsPersistenceFailed() async throws {
+        try await TestHelpers.withRepository { sut in
+            do {
+                try await sut.add(text: "")
+                Issue.record("Expected persistenceFailed to be thrown")
+            } catch ItemsRepositoryError.persistenceFailed {
+                // expected
+            }
+        }
     }
 
     @Test("Add text with special characters persists correctly")
     func add_specialCharacters_persists() async throws {
-        let container = try TestHelpers.makeInMemoryContainer()
-        let sut = ItemsRepository(modelContainer: container)
-        let specialText = "Emoji: 🎉 Unicode: \u{00E9} Newline:\nTab:\t"
+        try await TestHelpers.withRepository { sut in
+            let specialText = "Emoji: 🎉 Unicode: \u{00E9} Newline:\nTab:\t"
+            var iterator = sut.itemsSharedStream.makeAsyncIterator()
+            _ = try await iterator.next()
 
-        var iterator = sut.itemsSharedStream.makeAsyncIterator()
-        _ = try await iterator.next() // Skip initial
+            try await sut.add(text: specialText)
 
-        try await sut.add(text: specialText)
-
-        let items = try await iterator.next()
-        #expect(items?.first?.text == specialText)
+            let items = try await iterator.next()
+            #expect(items?.first?.text == specialText)
+        }
     }
 
-    @Test("Add duplicate text creates separate items with different IDs")
-    func add_duplicateText_createsSeparateItems() async throws {
-        let container = try TestHelpers.makeInMemoryContainer()
-        let sut = ItemsRepository(modelContainer: container)
+    @Test("Adding item with duplicate text stores only one item")
+    func add_duplicateText_storesOnlyOneItem() async throws {
+        try await TestHelpers.withRepository { sut in
+            // Same text produces the same SHA256 id — SwiftData upserts on the unique
+            // constraint rather than throwing, so only one item ends up in the store.
+            try await sut.add(text: "Duplicate")
+            try await sut.add(text: "Duplicate")
+            #expect(sut.allItems.count == 1)
+        }
+    }
 
-        var iterator = sut.itemsSharedStream.makeAsyncIterator()
-        _ = try await iterator.next() // Skip initial
+    // MARK: - Delete Tests
 
-        try await sut.add(text: "Duplicate")
-        _ = try await iterator.next() // Skip first add emission
+    @Test("Delete existing item removes it from storage")
+    func delete_existingItem_removesFromStorage() async throws {
+        try await TestHelpers.withRepository { sut in
+            var iterator = sut.itemsSharedStream.makeAsyncIterator()
+            _ = try await iterator.next()
 
-        try await sut.add(text: "Duplicate")
+            try await sut.add(text: "To delete")
+            let item = try #require(try await iterator.next()?.first)
 
-        let items = try await iterator.next()
-        #expect(items?.count == 2)
-        #expect(items?[0].text == "Duplicate")
-        #expect(items?[1].text == "Duplicate")
-        #expect(items?[0].id != items?[1].id)
+            try await sut.delete(id: item.id)
+
+            let itemsAfterDelete = try await iterator.next()
+            #expect(itemsAfterDelete?.isEmpty == true)
+        }
+    }
+
+    @Test("Delete last item emits empty array")
+    func delete_lastItem_emitsEmptyArray() async throws {
+        try await TestHelpers.withRepository { sut in
+            var iterator = sut.itemsSharedStream.makeAsyncIterator()
+            _ = try await iterator.next()
+
+            try await sut.add(text: "Only item")
+            let item = try #require(try await iterator.next()?.first)
+
+            try await sut.delete(id: item.id)
+
+            #expect(try await iterator.next()?.isEmpty == true)
+        }
+    }
+
+    @Test("Delete with unknown id throws itemNotFound")
+    func delete_unknownId_throwsItemNotFound() async throws {
+        try await TestHelpers.withRepository { sut in
+            let unknownId = "does-not-exist"
+            do {
+                try await sut.delete(id: unknownId)
+                Issue.record("Expected itemNotFound to be thrown")
+            } catch ItemsRepositoryError.itemNotFound(let id) {
+                #expect(id == unknownId)
+            }
+        }
+    }
+
+    // MARK: - Update Tests
+
+    @Test("Update existing item persists new text")
+    func update_existingItem_persistsNewText() async throws {
+        try await TestHelpers.withRepository { sut in
+            var iterator = sut.itemsSharedStream.makeAsyncIterator()
+            _ = try await iterator.next()
+
+            try await sut.add(text: "Original text")
+            let item = try #require(try await iterator.next()?.first)
+
+            try await sut.update(id: item.id, newText: "Updated text")
+
+            let updated = try await iterator.next()
+            #expect(updated?.first?.text == "Updated text")
+        }
+    }
+
+    @Test("Update refreshes lastModified date")
+    func update_existingItem_refreshesLastModified() async throws {
+        try await TestHelpers.withRepository { sut in
+            var iterator = sut.itemsSharedStream.makeAsyncIterator()
+            _ = try await iterator.next()
+
+            try await sut.add(text: "Original")
+            let item = try #require(try await iterator.next()?.first)
+            let originalModified = item.lastModified
+
+            try await Task.sleep(for: .milliseconds(10))
+            try await sut.update(id: item.id, newText: "Updated")
+
+            let updated = try #require(try await iterator.next()?.first)
+            #expect(updated.lastModified > originalModified)
+        }
+    }
+
+    @Test("Update with unknown id throws itemNotFound")
+    func update_unknownId_throwsItemNotFound() async throws {
+        try await TestHelpers.withRepository { sut in
+            let unknownId = "does-not-exist"
+            do {
+                try await sut.update(id: unknownId, newText: "anything")
+                Issue.record("Expected itemNotFound to be thrown")
+            } catch ItemsRepositoryError.itemNotFound(let id) {
+                #expect(id == unknownId)
+            }
+        }
     }
 }

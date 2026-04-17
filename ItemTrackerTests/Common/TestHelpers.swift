@@ -23,10 +23,15 @@ public enum TestHelpers {
         )
     }
 
-    /// Creates an ItemsRepository backed by in-memory storage for testing.
+    /// Runs `body` with a freshly created, fully isolated `ItemsRepository`.
+    ///
+    /// The repository and its underlying in-memory container are scoped to the
+    /// lifetime of the closure — they are released as soon as `body` returns,
+    /// preventing any state from leaking between tests.
     @MainActor
-    public static func makeItemsRepository() throws -> ItemsRepository {
+    public static func withRepository<T>(_ body: (ItemsRepository) async throws -> T) async throws -> T {
         let container = try makeInMemoryContainer()
-        return ItemsRepository(modelContainer: container)
+        let repository = ItemsRepository(modelContainer: container)
+        return try await body(repository)
     }
 }

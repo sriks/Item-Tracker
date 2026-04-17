@@ -39,8 +39,9 @@ private final class MockItemsRepository: ItemsRepositoryType {
         continuation.yield(items)
     }
 
-    func add(text: String) async throws {}
-    func delete(_ item: Item) async throws {}
+    func add(text: String) async throws(ItemsRepositoryError) {}
+    func delete(id: String) async throws(ItemsRepositoryError) {}
+    func update(id: String, newText: String) async throws(ItemsRepositoryError) {}
 }
 
 // MARK: - Tests

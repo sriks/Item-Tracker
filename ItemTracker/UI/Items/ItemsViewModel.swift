@@ -12,7 +12,7 @@ import Observation
 ///
 /// All formatting is applied here so the view can bind directly to strings
 /// without containing any presentation logic.
-struct ItemDisplayModel: Equatable, Identifiable {
+struct ItemDisplayModel: Equatable, Hashable, Identifiable {
     /// Stable identifier matching the underlying `Item`.
     let id: String
     /// The free-form text the user saved.
@@ -47,6 +47,21 @@ class ItemsViewModel {
     /// Adds a new item with the given text to the repository.
     func addItem(text: String) async throws {
         try await mutableRepository.add(text: text)
+    }
+
+    /// Deletes the item with the given identifier.
+    func deleteItem(id: String) async throws {
+        try await mutableRepository.delete(id: id)
+    }
+
+    /// Updates the text of the item with the given identifier.
+    func updateItem(id: String, newText: String) async throws {
+        try await mutableRepository.update(id: id, newText: newText)
+    }
+
+    /// Creates an `ItemDetailViewModel` for the given display model.
+    func makeDetailViewModel(for item: ItemDisplayModel) -> ItemDetailViewModel {
+        ItemDetailViewModel(item: item, mutableRepository: mutableRepository)
     }
 
     /// Opens a long-lived async loop that maps each repository emission to display models.

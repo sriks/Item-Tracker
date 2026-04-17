@@ -57,16 +57,48 @@ public final class ItemsRepository: ItemsFetchable {
 }
 
 extension ItemsRepository: ItemsMutatable {
-    public func add(text: String) async throws {
-        let toAdd = try Item(text: text)
-        modelContext.insert(toAdd)
-        try modelContext.save()
-        try refreshAndEmit()
+    public func add(text: String) async throws(ItemsRepositoryError) {
+        let toAdd: Item
+        do {
+            toAdd = try Item(text: text)
+        } catch {
+            throw .persistenceFailed(underlying: error)
+        }
+        do {
+            modelContext.insert(toAdd)
+            try modelContext.save()
+            try refreshAndEmit()
+        } catch {
+            throw .persistenceFailed(underlying: error)
+        }
     }
 
-    public func delete(_ item: Item) async throws {
-        modelContext.delete(item)
-        try modelContext.save()
-        try refreshAndEmit()
+    public func delete(id: String) async throws(ItemsRepositoryError) {
+        let descriptor = FetchDescriptor<Item>(predicate: #Predicate { $0.id == id })
+        guard let item = (try? modelContext.fetch(descriptor))?.first else {
+            throw .itemNotFound(id: id)
+        }
+        do {
+            modelContext.delete(item)
+            try modelContext.save()
+            try refreshAndEmit()
+        } catch {
+            throw .persistenceFailed(underlying: error)
+        }
+    }
+
+    public func update(id: String, newText: String) async throws(ItemsRepositoryError) {
+        let descriptor = FetchDescriptor<Item>(predicate: #Predicate { $0.id == id })
+        guard let item = (try? modelContext.fetch(descriptor))?.first else {
+            throw .itemNotFound(id: id)
+        }
+        do {
+            item.text = newText
+            item.lastModified = Date()
+            try modelContext.save()
+            try refreshAndEmit()
+        } catch {
+            throw .persistenceFailed(underlying: error)
+        }
     }
 }

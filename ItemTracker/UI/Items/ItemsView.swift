@@ -28,12 +28,17 @@ struct ItemsView: View {
                     )
                 } else {
                     List(viewModel.items) { item in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(item.text)
-                            Text(item.formattedDate)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        NavigationLink(value: item) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(item.text)
+                                Text(item.formattedDate)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
+                    }
+                    .navigationDestination(for: ItemDisplayModel.self) { item in
+                        ItemDetailView(viewModel: viewModel.makeDetailViewModel(for: item))
                     }
                 }
             }
