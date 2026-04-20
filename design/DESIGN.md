@@ -108,28 +108,6 @@ The selected theme ID is stored in `UserDefaults`. The active theme is injected 
 
 A single `DesignConstants` enum holds all fixed shape and layout numbers. No view hardcodes these values directly.
 
-**Shape:**
-
-| Constant             | Value | Used for                          |
-| -------------------- | ----- | --------------------------------- |
-| `cornerRadiusCard`   | 16pt  | Section containers, grouped lists |
-| `cornerRadiusInput`  | 22pt  | Search bars, text fields          |
-| `cornerRadiusChip`   | 14pt  | Suggestion chips, filter pills    |
-| `cornerRadiusTag`    | 8pt   | Answer pills, inline tags         |
-| `cornerRadiusRoom`   | 12pt  | Room cards in location selector   |
-| `cornerRadiusTabBar` | 32pt  | Floating pill tab bar             |
-| `borderWidth`        | 0.5pt | All hairline borders              |
-
-**Layout:**
-
-| Constant                 | Value | Used for                             |
-| ------------------------ | ----- | ------------------------------------ |
-| `horizontalPadding`      | 26pt  | Screen edge padding                  |
-| `sectionSpacing`         | 28pt  | Vertical gap between major sections  |
-| `itemGap`                | 8pt   | Vertical gap within a section        |
-| `tabBarBottomPadding`    | 8pt   | Space above home indicator           |
-| `searchBarBottomPadding` | 16pt  | Space between search bar and tab bar |
-
 ---
 
 ## Semantic Colours

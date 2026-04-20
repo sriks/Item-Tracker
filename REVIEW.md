@@ -21,3 +21,4 @@ Report at most five Nits per review. If you found more, say "plus N similar item
 - Room colours come from `ColorToken.color`, never an inline hex literal
 - New views added to the SwiftUI environment chain are injected via `ContentView`, not at arbitrary call sites
 - New repository interactions go through a protocol, not a concrete type
+- User-visible strings use generated `LocalizedStringResource` symbols (e.g. `Text(.whereIsIt)`) — bare string literals in production views are an **Important** finding (exceptions: `#Preview` blocks and test files)
