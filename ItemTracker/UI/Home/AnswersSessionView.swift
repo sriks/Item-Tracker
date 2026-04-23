@@ -98,24 +98,9 @@ extension AnswersSessionViewModel.AnswerResult {
 // MARK: - Previews
 
 #Preview("Dark — multiple answers") {
-    let session = AnswersSessionViewModel(brain: (try! DependencyContainer.preview()).itemFinder)
-    session.seed([
-        .init(
-            question: "Where are the macbook chargers?",
-            result: .success("Macbook chargers are stored in the library, 3rd drawer from the top.")
-        ),
-        .init(
-            question: "Where did I put the scissors?",
-            result: .success("The scissors are on the kitchen counter, next to the coffee maker.")
-        ),
-        .init(
-            question: "What's in the storage room?",
-            result: .success("Toilet rolls (2nd row), cleaning supplies, spare lightbulbs in the top box.")
-        ),
-    ])
-    return VStack(spacing: 0) {
+    VStack(spacing: 0) {
         Spacer()
-        AnswersSessionView(session: session)
+        AnswersSessionView(session: .preview(answers: 3))
             .appTheme(MonochromeTheme(scheme: .dark))
     }
     .preferredColorScheme(.dark)
@@ -123,16 +108,9 @@ extension AnswersSessionViewModel.AnswerResult {
 }
 
 #Preview("Light — single answer") {
-    let session = AnswersSessionViewModel(brain: (try! DependencyContainer.preview()).itemFinder)
-    session.seed([
-        .init(
-            question: "Where are the macbook chargers?",
-            result: .success("Macbook chargers are stored in the library, 3rd drawer from the top.")
-        ),
-    ])
-    return VStack(spacing: 0) {
+    VStack(spacing: 0) {
         Spacer()
-        AnswersSessionView(session: session)
+        AnswersSessionView(session: .preview(answers: 1))
             .appTheme(MonochromeTheme(scheme: .light))
     }
     .preferredColorScheme(.light)

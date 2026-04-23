@@ -66,10 +66,29 @@ final class AnswersSessionViewModel {
 
 // MARK: - Preview helpers
 
-#if DEBUG
-    extension AnswersSessionViewModel {
-        func seed(_ previewAnswers: [Answer]) {
-            answers = previewAnswers
-        }
+extension AnswersSessionViewModel {
+    /// Returns a preview-ready session pre-seeded with `count` sample answers.
+    static func preview(answers count: Int = 1) -> AnswersSessionViewModel {
+        let session = AnswersSessionViewModel(brain: (try! DependencyContainer.preview()).itemFinder)
+        let pool: [Answer] = [
+            .init(
+                question: "Where are the macbook chargers?",
+                result: .success("Macbook chargers are stored in the library, 3rd drawer from the top.")
+            ),
+            .init(
+                question: "Where did I put the scissors?",
+                result: .success("The scissors are on the kitchen counter, next to the coffee maker.")
+            ),
+            .init(
+                question: "What's in the storage room?",
+                result: .success("Toilet rolls (2nd row), cleaning supplies, spare lightbulbs in the top box.")
+            ),
+            .init(
+                question: "Where is the blue USB cable?",
+                result: .error("Could not find any matching item.")
+            ),
+        ]
+        session.answers = Array(pool.prefix(count))
+        return session
     }
-#endif
+}
