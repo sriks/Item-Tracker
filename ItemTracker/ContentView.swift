@@ -8,7 +8,7 @@ struct ContentView: View {
     var body: some View {
         TabView {
             if let deps = dependencies {
-                HomeView(queryViewModel: QueryViewModel(brain: deps.itemFinder))
+                AskScreen(session: AnswersSessionViewModel(brain: deps.itemFinder))
                     .tabItem {
                         Label("Home", systemImage: "house.fill")
                     }

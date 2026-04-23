@@ -8,7 +8,7 @@ import SwiftUI
 // MARK: - Ask Screen
 
 struct AskScreen: View {
-    @Bindable var queryViewModel: QueryViewModel
+    @Bindable var session: AnswersSessionViewModel
     @Environment(\.appTheme) private var theme: any AppTheme
     @Environment(\.constants) private var constants: DesignConstants
 
@@ -19,7 +19,6 @@ struct AskScreen: View {
 
                 Spacer().frame(height: constants.sectionSpacing)
 
-                // Large title + subtitle
                 VStack(alignment: .leading, spacing: constants.small) {
                     Text(.whereIsIt)
                         .font(.largeTitle.bold())
@@ -34,9 +33,14 @@ struct AskScreen: View {
             .padding(.horizontal, constants.horizontalPadding)
         }
         .safeAreaInset(edge: .bottom) {
-            VStack {
-                QueryView(queryViewModel: queryViewModel)
-            }.padding()
+            VStack(spacing: 0) {
+                if session.isPresented {
+                    AnswersSessionView(session: session)
+                }
+                QueryView(session: session)
+                    .padding()
+            }
+            .animation(.spring(duration: 0.35), value: session.isPresented)
         }
     }
 }
@@ -48,12 +52,9 @@ private struct AppHeaderView: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            // Logo
-            ZStack {
-                Image(systemName: "magnifyingglass")
-                    .font(.callout.weight(.medium))
-                    .foregroundStyle(theme.primaryText)
-            }
+            Image(systemName: "magnifyingglass")
+                .font(.callout.weight(.medium))
+                .foregroundStyle(theme.primaryText)
 
             Text(.itemTracker)
                 .font(.subheadline.weight(.semibold))
@@ -67,65 +68,67 @@ private struct AppHeaderView: View {
 // MARK: - QueryView
 
 private struct QueryView: View {
-    @Bindable var queryViewModel: QueryViewModel
+    @Bindable var session: AnswersSessionViewModel
+    @State private var query = ""
     @Environment(\.appTheme) private var theme: any AppTheme
     @Environment(\.constants) private var constants: DesignConstants
-    private let isMicEnabled: Bool = false
-    
-    var body: some View {
-        // Text field
-        TextField(.askWhereSomethingIs,
-                  text: $queryViewModel.query)
-            .textFieldStyle(.plain)
-            .keyboardType(.default)
-            .submitLabel(queryViewModel.query.isEmpty ? .done : .search)
-            .onSubmit {
-                queryViewModel.runQuery()
-            }
-            .safeAreaInset(edge: .leading) {
-                // TODO: Animate flowing circle when query is in progress.
-                Image(systemName: "magnifyingglass")
-                    .font(.callout)
-                    .foregroundStyle(theme.secondaryText)
-            }
-            .safeAreaInset(edge: .trailing) {
-                // For speak with siri or voice query.
-                if isMicEnabled {
-                    ZStack {
-                        Circle()
-                            .fill(theme.micButtonBackground)
-                            .frame(width: constants.large, height: constants.large)
+    private let isMicEnabled = false
 
-                        Image(systemName: "mic.fill")
-                            .font(.footnote)
-                            .foregroundStyle(theme.secondaryText)
-                    }
-                } else {
-                    EmptyView()
+    var body: some View {
+        TextField(
+            session.isPresented ? .askAnotherQuestion : .askWhereSomethingIs,
+            text: $query
+        )
+        .textFieldStyle(.plain)
+        .submitLabel(query.isEmpty ? .done : .search)
+        .disabled(session.isQuerying)
+        .onSubmit {
+            let captured = query
+            query = ""
+            Task { await session.ask(captured) }
+        }
+        .safeAreaInset(edge: .leading) {
+            Image(systemName: session.isQuerying ? "circle.dotted" : "magnifyingglass")
+                .font(.callout)
+                .foregroundStyle(theme.secondaryText)
+                .symbolEffect(.pulse, isActive: session.isQuerying)
+        }
+        .safeAreaInset(edge: .trailing) {
+            if isMicEnabled {
+                ZStack {
+                    Circle()
+                        .fill(theme.micButtonBackground)
+                        .frame(width: constants.large, height: constants.large)
+
+                    Image(systemName: "mic.fill")
+                        .font(.footnote)
+                        .foregroundStyle(theme.secondaryText)
                 }
+            } else {
+                EmptyView()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(.regularMaterial)
-            .clipShape(Capsule())
-            .overlay(
-                Capsule()
-                    .strokeBorder(theme.searchBarBorder,
-                                  lineWidth: constants.borderWidth)
-            )
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(.regularMaterial)
+        .clipShape(Capsule())
+        .overlay(
+            Capsule()
+                .strokeBorder(theme.searchBarBorder, lineWidth: constants.borderWidth)
+        )
     }
 }
 
 // MARK: - Previews
 
 #Preview("Dark") {
-    AskScreen(queryViewModel: QueryViewModel(brain: (try! DependencyContainer.preview()).itemFinder))
+    AskScreen(session: AnswersSessionViewModel(brain: (try! DependencyContainer.preview()).itemFinder))
         .appTheme(MonochromeTheme(scheme: .dark))
         .preferredColorScheme(.dark)
 }
 
 #Preview("Light") {
-    AskScreen(queryViewModel: QueryViewModel(brain: (try! DependencyContainer.preview()).itemFinder))
+    AskScreen(session: AnswersSessionViewModel(brain: (try! DependencyContainer.preview()).itemFinder))
         .appTheme(MonochromeTheme(scheme: .light))
         .preferredColorScheme(.light)
 }

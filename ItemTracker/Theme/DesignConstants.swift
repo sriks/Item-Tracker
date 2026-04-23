@@ -25,7 +25,7 @@ struct DesignConstants {
     let tabBarBottomPadding: CGFloat = 8
     /// Space between the search bar and the top of the tab bar.
     let searchBarBottomPadding: CGFloat = 16
-    
+
     // MARK: - Spacing
     /// 2
     let xSmall: CGFloat = 2
