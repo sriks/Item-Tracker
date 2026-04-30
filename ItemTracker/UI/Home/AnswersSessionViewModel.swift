@@ -37,7 +37,7 @@ final class AnswersSessionViewModel {
     var isPresented: Bool {
         !answers.isEmpty
     }
-    
+
     private var numberOfAnswersPerSession = 1
 
     // MARK: - Init
@@ -51,7 +51,7 @@ final class AnswersSessionViewModel {
     func ask(_ question: String) async {
         guard !isQuerying, !question.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         if answers.count >= numberOfAnswersPerSession {
-            answers = []
+            reset()
         }
         isQuerying = true
         defer { isQuerying = false }

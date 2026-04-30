@@ -12,6 +12,10 @@ struct AskScreen: View {
     @Environment(\.appTheme) private var theme: any AppTheme
     @Environment(\.constants) private var constants: DesignConstants
 
+    /// Tracks the scroll view's rendered height, which shrinks when the keyboard appears.
+    @State private var scrollViewHeight: CGFloat = 0
+    @FocusState private var isQueryFieldFocused: Bool
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
@@ -31,13 +35,21 @@ struct AskScreen: View {
                 }
             }
             .padding(.horizontal, constants.horizontalPadding)
+            .onTapGesture {
+                isQueryFieldFocused = false
+                session.reset()
+            }
+        }
+        .scrollDismissesKeyboard(.immediately)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: {
+            scrollViewHeight = $0
         }
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 0) {
                 if session.isPresented {
-                    AnswersSessionView(session: session)
+                    AnswersSessionView(session: session, maxHeight: scrollViewHeight * 0.70)
                 }
-                QueryView(session: session)
+                QueryView(session: session, isFocused: $isQueryFieldFocused)
                     .padding()
             }
             .animation(.spring(duration: 0.35), value: session.isPresented)
@@ -69,6 +81,7 @@ private struct AppHeaderView: View {
 
 private struct QueryView: View {
     @Bindable var session: AnswersSessionViewModel
+    @FocusState.Binding var isFocused: Bool
     @State private var query = ""
     @Environment(\.appTheme) private var theme: any AppTheme
     @Environment(\.constants) private var constants: DesignConstants
@@ -79,6 +92,7 @@ private struct QueryView: View {
             session.isPresented ? .askAnotherQuestion : .askWhereSomethingIs,
             text: $query
         )
+        .focused($isFocused)
         .textFieldStyle(.plain)
         .submitLabel(query.isEmpty ? .done : .search)
         .disabled(session.isQuerying)

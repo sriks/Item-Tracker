@@ -7,50 +7,43 @@ import SwiftUI
 
 // MARK: - AnswersSessionView
 
-/// Floating inline surface that sits directly above the search bar and accumulates answer cards.
-/// Expands upward as answers arrive, capped at 70% of available screen height.
-/// Dismissed by calling `session.reset()` which clears answers and collapses the surface.
+/// Floating inline surface that sits directly above the search bar and shows the current answer.
+/// Sizes to fit its content, capped at `maxHeight` (caller derives this from the available
+/// content area so it naturally accounts for keyboard height changes).
+/// Dismissed by calling `session.reset()` which clears the answer and collapses the surface.
 struct AnswersSessionView: View {
     @Bindable var session: AnswersSessionViewModel
+    /// Maximum height the surface may grow to. Passed in by `AskScreen` which measures
+    /// the scroll view height — shrinks automatically when the keyboard appears.
+    var maxHeight: CGFloat
     @Environment(\.appTheme) private var theme: any AppTheme
     @Environment(\.constants) private var constants: DesignConstants
 
-    private var maxSurfaceHeight: CGFloat {
-        UIScreen.main.bounds.height * 0.70
-    }
-
     @State private var contentHeight: CGFloat = 0
     private var surfaceHeight: CGFloat {
-        min(contentHeight, maxSurfaceHeight)
+        min(contentHeight, maxHeight)
     }
 
     var body: some View {
-        ScrollViewReader { scrollProxy in
-            ScrollView {
-                LazyVStack(spacing: constants.itemGap) {
-                    ForEach(session.answers) { answer in
-                        AnswersCard(
-                            question: answer.question,
-                            answer: answer.result.displayText
-                        )
-                        .id(answer.id)
-                    }
-                }
-                .padding(.horizontal, constants.horizontalPadding)
-                .padding(.bottom, constants.medium)
-                .padding(.top, constants.xLarge)
-                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: {
-                    contentHeight = $0
+        ScrollView {
+            LazyVStack(spacing: constants.itemGap) {
+                ForEach(session.answers) { answer in
+                    AnswersCard(
+                        question: answer.question,
+                        answer: answer.result.displayText
+                    )
+                    .id(answer.id)
                 }
             }
-            .frame(height: surfaceHeight)
-            .onChange(of: session.answers.count) {
-                if let last = session.answers.last {
-                    withAnimation { scrollProxy.scrollTo(last.id, anchor: .bottom) }
-                }
+            .padding(.horizontal, constants.horizontalPadding)
+            .padding(.bottom, constants.medium)
+            .padding(.top, constants.xLarge)
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: {
+                contentHeight = $0
             }
         }
-        .background(.regularMaterial)
+        .frame(height: surfaceHeight)
+        .background(.clear)
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius: constants.cornerRadiusCard,
@@ -62,12 +55,10 @@ struct AnswersSessionView: View {
         .overlay(alignment: .topTrailing) {
             dismissButton
                 .padding(.trailing, constants.horizontalPadding)
-                .padding(.top, constants.small)
+                .padding(.top, constants.medium)
         }
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
-
-    // MARK: Private
 
     private var dismissButton: some View {
         Button {
@@ -97,20 +88,20 @@ extension AnswersSessionViewModel.AnswerResult {
 
 // MARK: - Previews
 
-#Preview("Dark — multiple answers") {
+#Preview("Dark") {
     VStack(spacing: 0) {
         Spacer()
-        AnswersSessionView(session: .preview(answers: 3))
+        AnswersSessionView(session: .preview(answers: 1), maxHeight: 500)
             .appTheme(MonochromeTheme(scheme: .dark))
     }
     .preferredColorScheme(.dark)
     .background(Color(white: 0.05))
 }
 
-#Preview("Light — single answer") {
+#Preview("Light") {
     VStack(spacing: 0) {
         Spacer()
-        AnswersSessionView(session: .preview(answers: 1))
+        AnswersSessionView(session: .preview(answers: 1), maxHeight: 500)
             .appTheme(MonochromeTheme(scheme: .light))
     }
     .preferredColorScheme(.light)
