@@ -10,6 +10,7 @@ import SwiftData
 protocol DependencyContaining {
     var itemFinder: ItemFindable { get }
     var itemsRepository: ItemsRepositoryType { get }
+    var promptStore: PromptStorable { get }
 }
 
 /// Concrete implementation of dependency container
@@ -17,12 +18,19 @@ protocol DependencyContaining {
 final class DependencyContainer: DependencyContaining {
     let itemFinder: ItemFindable
     let itemsRepository: ItemsRepositoryType
+    let promptStore: PromptStorable
     let modelContainer: ModelContainer
 
-    private init(modelContainer: ModelContainer, itemsRepository: ItemsRepositoryType, itemFinder: ItemFindable) {
+    private init(
+        modelContainer: ModelContainer,
+        itemsRepository: ItemsRepositoryType,
+        itemFinder: ItemFindable,
+        promptStore: PromptStorable
+    ) {
         self.modelContainer = modelContainer
         self.itemsRepository = itemsRepository
         self.itemFinder = itemFinder
+        self.promptStore = promptStore
     }
 
     /// Factory method for production container
@@ -45,11 +53,13 @@ final class DependencyContainer: DependencyContaining {
         }
 
         let repository = ItemsRepository(modelContainer: modelContainer)
-        let brain = ReasoningBrain(itemsRepository: repository, instructions: nil)
+        let promptStore = UserDefaultsPromptStore()
+        let brain = ReasoningBrain(itemsRepository: repository, promptStore: promptStore)
         return DependencyContainer(
             modelContainer: modelContainer,
             itemsRepository: repository,
-            itemFinder: brain
+            itemFinder: brain,
+            promptStore: promptStore
         )
     }
 
@@ -76,11 +86,13 @@ final class DependencyContainer: DependencyContaining {
         try? context.save()
 
         let repository = ItemsRepository(modelContainer: modelContainer)
-        let brain = ReasoningBrain(itemsRepository: repository, instructions: nil)
+        let promptStore = UserDefaultsPromptStore()
+        let brain = ReasoningBrain(itemsRepository: repository, promptStore: promptStore)
         return DependencyContainer(
             modelContainer: modelContainer,
             itemsRepository: repository,
-            itemFinder: brain
+            itemFinder: brain,
+            promptStore: promptStore
         )
     }
 

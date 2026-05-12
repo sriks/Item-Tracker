@@ -143,6 +143,30 @@
           }
         }
       }
+    },
+    "Customise Prompt" : {
+      "comment" : "Settings row label and navigation title for the custom prompt editor.",
+      "extractionState" : "manual"
+    },
+    "Use This Prompt" : {
+      "comment" : "Button that saves the edited prompt and dismisses the screen.",
+      "extractionState" : "manual"
+    },
+    "View History" : {
+      "comment" : "Button that opens the list of previously saved prompts.",
+      "extractionState" : "manual"
+    },
+    "Prompt History" : {
+      "comment" : "Navigation title for the prompt history sheet.",
+      "extractionState" : "manual"
+    },
+    "No saved prompts yet" : {
+      "comment" : "Empty state message shown when no prompt history exists.",
+      "extractionState" : "manual"
+    },
+    "Edit the instructions used when answering item location queries." : {
+      "comment" : "Subtitle shown above the text editor in the custom prompt screen.",
+      "extractionState" : "manual"
     }
   },
   "version" : "1.1"

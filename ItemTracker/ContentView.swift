@@ -21,7 +21,7 @@ struct ContentView: View {
                     Label("Items", systemImage: "list.bullet")
                 }
 
-                SettingsView()
+                SettingsView(promptStore: deps.promptStore)
                     .tabItem {
                         Label("Settings", systemImage: "gearshape.fill")
                     }
@@ -29,19 +29,6 @@ struct ContentView: View {
         }
         .appTheme(MonochromeTheme(scheme: colorScheme))
         .environment(\.constants, DesignConstants())
-    }
-}
-
-// MARK: - Settings View
-struct SettingsView: View {
-    var body: some View {
-        NavigationStack {
-            VStack {
-                Text("App settings")
-                    .foregroundStyle(.secondary)
-            }
-            .navigationTitle("Settings")
-        }
     }
 }
 

@@ -19,16 +19,11 @@ class ReasoningBrain: ItemFindable {
     private let isRespondingContinuation: AsyncStream<Bool>.Continuation
     let isRespondingStream: AsyncStream<Bool>
     private let itemsRepository: ItemsFetchable
+    private let promptStore: PromptReadable
 
-    init(itemsRepository: ItemsFetchable, instructions: String?) {
-        let (stream, continuation) = AsyncStream<Bool>.makeStream()
-        isRespondingStream = stream
-        isRespondingContinuation = continuation
-        self.itemsRepository = itemsRepository
-    }
-
-    // TODO: This instruction should be changeble. Like improving through settings in debug build.
-    private let instructions = """
+    /// Baseline instructions used when no custom prompt has been saved.
+    /// Exposed as `static` so `CustomPromptViewModel` can show it as the starting value.
+    static let defaultInstructions = """
     You are an assistant that helps track where items are kept based on my notes. \
     The user tells you where he/she kept an item in a storage area/room/location. And you have to help them find where they kept it. \
     Here are the rules
@@ -40,6 +35,14 @@ class ReasoningBrain: ItemFindable {
         5. Ignore conversations which are not questions. \
         6. Importantly, be funny.
     """
+
+    init(itemsRepository: ItemsFetchable, promptStore: PromptReadable) {
+        let (stream, continuation) = AsyncStream<Bool>.makeStream()
+        isRespondingStream = stream
+        isRespondingContinuation = continuation
+        self.itemsRepository = itemsRepository
+        self.promptStore = promptStore
+    }
 
     func createPrompt(items: [Item], question: String) -> String {
         // Build a natural language context
@@ -67,9 +70,10 @@ class ReasoningBrain: ItemFindable {
         defer {
             isRespondingContinuation.yield(false)
         }
+        let activeInstructions = promptStore.currentPrompt ?? ReasoningBrain.defaultInstructions
         let session = LanguageModelSession(
             model: .init(useCase: .general, guardrails: .permissiveContentTransformations),
-            instructions: instructions
+            instructions: activeInstructions
         )
         guard !session.isResponding else {
             return nil
